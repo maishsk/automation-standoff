@@ -10,6 +10,6 @@ The three tools compared are:
 
 The examples are divided into 3 different levels:
 
-- Simple [Comparing Cloudformation, Terraform and Ansible - Simple example](https://technodrone.blogspot.com/2018/06/comparing-cloudformation-terraform-and.html)
+- Simple - [Comparing Cloudformation, Terraform and Ansible - Simple example](https://technodrone.blogspot.com/2018/06/comparing-cloudformation-terraform-and.html)
 - Intermediate
 - Advanced
