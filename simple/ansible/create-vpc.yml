@@ -1,0 +1,16 @@
+- name: VPC creation playbook
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - vars/vpc_vars.yml
+
+  tasks:
+  - name: Create a VPC
+    ec2_vpc_net:
+      region: "{{ region }}"
+      name: "{{ project_name }}"
+      cidr_block: "{{ cidr_block }}"
+      state: present
+    register: vpc

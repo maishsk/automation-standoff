@@ -1,0 +1,28 @@
+Description:
+  This template deploys a VPC.
+
+Parameters:
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource names
+    Type: String
+    Default: "testvpc"
+
+  VpcCIDR:
+    Description: Please enter the IP range (CIDR notation) for this VPC
+    Type: String
+    Default: 192.168.90.0/24
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCIDR
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: "testvpc"
+
+Outputs:
+  VPC:
+    Description: A reference to the created VPC
+    Value: !Ref VPC
