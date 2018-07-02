@@ -8,7 +8,7 @@ private2_cidr: 192.168.90.192/26
 pub1_name: "Public Subnet (AZ1)"
 pub2_name: "Public Subnet (AZ2)"
 priv1_name: "Private Subnet (AZ1)"
-priv2_name: "Private Subnet (AZ1)"
+priv2_name: "Private Subnet (AZ2)"
 az1: us-east-2a
 az2: us-east-2b
 #   public_sub_list:
