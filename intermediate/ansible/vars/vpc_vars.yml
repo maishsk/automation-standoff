@@ -11,21 +11,3 @@ priv1_name: "Private Subnet (AZ1)"
 priv2_name: "Private Subnet (AZ2)"
 az1: us-east-2a
 az2: us-east-2b
-#   public_sub_list:
-#   - sub:
-#       name: "Public Subnet (AZ1)"
-#       cidr: 192.168.90.0/26
-#       az: us-east-2a
-#   - sub:
-#       name: "Public Subnet (AZ2)"
-#       cidr: 192.168.90.64/26
-#       az: us-east-2b
-# private_sub_list:
-#   - sub:
-#       name: "Private Subnet (AZ1)"
-#       cidr: 192.168.90.128/26
-#       az: us-east-2a
-#   - sub:
-#       name: "Private Subnet (AZ2)"
-#       cidr: 192.168.90.192/26
-#       az: us-east-2b
