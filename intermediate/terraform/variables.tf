@@ -15,19 +15,19 @@ variable "project_name" {
 }
 variable "pub1_cidr" {
     description = "The CIDR block for the public subnet in us-east-2a"
-    default     = "192.168.90.0/24"
+    default     = "192.168.90.0/26"
 }
 variable "pub2_cidr" {
     description = "The CIDR block for the public subnet in us-east-2b"
-    default     = "192.168.90.64/24"
+    default     = "192.168.90.64/26"
 }
 variable "private1_cidr" {
     description = "The CIDR block for the private subnet in us-east-2a"
-    default     = "192.168.90.128/24"
+    default     = "192.168.90.128/26"
 }
 variable "private2_cidr" {
     description = "The CIDR block for the private subnet in us-east-2b"
-    default     = "192.168.90.192/24"
+    default     = "192.168.90.192/26"
 }
 variable "pub1_name" {
     description = "The name tag for the public subnet in us-east-2a"
