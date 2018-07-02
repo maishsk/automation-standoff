@@ -63,7 +63,6 @@
       vpc_id: "{{ igw_facts.internet_gateways[0].attachments[0].vpc_id }}"
       region: "{{ region }}"
       state: absent
-    when: igw_facts.internet_gateways | length > 0
 
   - name: Get subnet facts
     ec2_vpc_subnet_facts:
