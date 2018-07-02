@@ -13,9 +13,9 @@ public_sub_list:
 private_sub_list:
   - sub:
       name: "Private Subnet (AZ1)"
-      cidr: 192.168.90.0/26
+      cidr: 192.168.90.128/26
       az: us-east-2a
   - sub:
       name: "Private Subnet (AZ2)"
-      cidr: 192.168.90.64/26
+      cidr: 192.168.90.192/26
       az: us-east-2b
