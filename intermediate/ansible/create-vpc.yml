@@ -1,0 +1,129 @@
+---
+- name: VPC creation playbook
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - vars/vpc_vars.yml
+
+  tasks:
+  - name: Create a VPC
+    ec2_vpc_net:
+      region: "{{ region }}"
+      name: "{{ project_name }}"
+      cidr_block: "{{ cidr_block }}"
+      state: present
+    register: vpc
+
+  - name: Create subnets for Public network (AZ1)
+    ec2_vpc_subnet:
+      state: present
+      az: "{{ az1 }}"
+      vpc_id: "{{ vpc.vpc.id }}"
+      region: "{{ region }}"
+      cidr: "{{ pub1_cidr }}"
+      resource_tags:
+        Name: "{{ pub1_name }}"
+    register: pub1_subnet
+
+  - name: Create subnets for Public network (AZ2)
+    ec2_vpc_subnet:
+      state: present
+      az: "{{ az2 }}"
+      vpc_id: "{{ vpc.vpc.id }}"
+      region: "{{ region }}"
+      cidr: "{{ pub2_cidr }}"
+      resource_tags:
+        Name: "{{ pub2_name }}"
+    register: pub2_subnet
+
+  - name: Create subnets for Private network (AZ1)
+    ec2_vpc_subnet:
+      state: present
+      az: "{{ az1 }}"
+      vpc_id: "{{ vpc.vpc.id }}"
+      region: "{{ region }}"
+      cidr: "{{ private1_cidr }}"
+      resource_tags:
+        Name: "{{ priv1_name }}"
+    register: priv1_subnet
+
+  - name: Create subnets for Private network (AZ2)
+    ec2_vpc_subnet:
+      state: present
+      az: "{{ az2 }}"
+      vpc_id: "{{ vpc.vpc.id }}"
+      region: "{{ region }}"
+      cidr: "{{ private2_cidr }}"
+      resource_tags:
+        Name: "{{ priv2_name }}"
+    register: priv2_subnet
+
+  - name: Create a new Internet Gateway
+    ec2_vpc_igw:
+      state: present
+      vpc_id: "{{ vpc.vpc.id }}"
+      region: "{{ region }}"
+      tags:
+        Name: "{{ project_name }}"
+    register: igw
+
+  - name: Create NAT Gateway AZ1
+    ec2_vpc_nat_gateway:
+      wait: yes
+      state: present
+      subnet_id: "{{ pub1_subnet.subnet.id }}"
+      region: "{{ region }}"
+      if_exist_do_not_create: true
+    register: ngw_az1
+
+  - name: Create NAT Gateway AZ2
+    ec2_vpc_nat_gateway:
+      wait: yes
+      state: present
+      subnet_id: "{{ pub2_subnet.subnet.id }}"
+      region: "{{ region }}"
+      if_exist_do_not_create: true
+    register: ngw_az2
+
+  - name: Create the public routing table and associate to Public subnets
+    ec2_vpc_route_table:
+      state: present
+      vpc_id: "{{ vpc.vpc.id }}"
+      region: "{{ region }}"
+      tags:
+        Name: Public Route Table
+      subnets:
+        - "{{ pub1_subnet.subnet.id }}"
+        - "{{ pub2_subnet.subnet.id }}"
+      routes:
+        - dest: 0.0.0.0/0
+          gateway_id: "{{ igw.gateway_id }}"
+    register: public_route_table
+
+  - name:  Create the routing table for each of the Private Subnet (AZ1)
+    ec2_vpc_route_table:
+      state: present
+      vpc_id: "{{ vpc.vpc.id }}"
+      region: "{{ region }}"
+      tags:
+        Name: Private Route Table (AZ1)
+      subnets: "{{ priv1_subnet.subnet.id }}"
+      routes:
+        - dest: 0.0.0.0/0
+          gateway_id: "{{ ngw_az1.nat_gateway_id }}"
+    register: private_route_table_az1
+
+  - name:  Create the routing table for each of the Private Subnet (AZ2)
+    ec2_vpc_route_table:
+      state: present
+      vpc_id: "{{ vpc.vpc.id }}"
+      region: "{{ region }}"
+      tags:
+        Name: Private Route Table (AZ2)
+      subnets: "{{ priv2_subnet.subnet.id }}"
+      routes:
+        - dest: 0.0.0.0/0
+          gateway_id: "{{ ngw_az2.nat_gateway_id }}"
+    register: private_route_table_az2
