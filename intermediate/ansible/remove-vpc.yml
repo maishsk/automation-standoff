@@ -15,24 +15,22 @@
       region: "{{ region }}"
     register: vpc_facts
 
-# - name: Get NATGW facts
-#   ec2_vpc_nat_gateway_facts:
-#     region: "{{ region }}"
-#     filters:
-#       vpc-id: "{{ vpc_facts.vpcs[0].id}}"
-#       state: available
-#   register: ngw_facts
-# - debug: var=ngw_facts.result|length
-#
-# - name: Remove NATGW
-#   ec2_vpc_nat_gateway:
-#     state: absent
-#     nat_gateway_id: "{{ item }}"
-#     release_eip: true
-#     wait: yes
-#     region: "{{ region }}"
-#   with_items: "{{ ngw_facts|json_query('result[*].nat_gateway_id')}}"
-#   when: ngw_facts.result | length > 0
+  - name: Get NATGW facts
+    ec2_vpc_nat_gateway_facts:
+      region: "{{ region }}"
+      filters:
+        vpc-id: "{{ vpc_facts.vpcs[0].id}}"
+        state: available
+    register: ngw_facts
+
+  - name: Remove NATGW
+    ec2_vpc_nat_gateway:
+      state: absent
+      nat_gateway_id: "{{ item }}"
+      release_eip: true
+      wait: yes
+      region: "{{ region }}"
+    with_items: "{{ ngw_facts|json_query('result[*].nat_gateway_id')}}"
 #
 # - name: Get route table facts
 #   ec2_vpc_route_table_facts:
