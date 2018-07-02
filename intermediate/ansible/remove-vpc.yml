@@ -1,10 +1,19 @@
 ---
-- name: Get VPC Facts
-  ec2_vpc_net_facts:
-    filters:
-      "tag:Name": "{{ project_name }}"
-    region: "{{ region }}"
-  register: vpc_facts
+- name: VPC destroy playbook
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - vars/vpc_vars.yml
+
+  tasks:
+  - name: Get VPC Facts
+    ec2_vpc_net_facts:
+      filters:
+        "tag:Name": "{{ project_name }}"
+      region: "{{ region }}"
+    register: vpc_facts
 
 # - name: Get NATGW facts
 #   ec2_vpc_nat_gateway_facts:
@@ -42,38 +51,38 @@
 #     lookup: id
 #   with_items: "{{ vpc_route_table_facts|json_query('route_tables[*].id') }}"
 
-- name: Gather IGW facts
-  ec2_vpc_igw_facts:
-    region: "{{ region }}"
-    filters:
-      "tag:Name": "igw_{{ project_name }}"
-  register: igw_facts
+  - name: Gather IGW facts
+    ec2_vpc_igw_facts:
+      region: "{{ region }}"
+      filters:
+        "tag:Name": "igw_{{ project_name }}"
+    register: igw_facts
 
-- name: Remove IGW
-  ec2_vpc_igw:
-    vpc_id: "{{ igw_facts.internet_gateways[0].attachments[0].vpc_id }}"
-    region: "{{ region }}"
-    state: absent
-  when: igw_facts.internet_gateways | length > 0
+  - name: Remove IGW
+    ec2_vpc_igw:
+      vpc_id: "{{ igw_facts.internet_gateways[0].attachments[0].vpc_id }}"
+      region: "{{ region }}"
+      state: absent
+    when: igw_facts.internet_gateways | length > 0
 
-- name: Get subnet facts
-  ec2_vpc_subnet_facts:
-    filters:
-      vpc-id: "{{ vpc_facts.vpcs[0].id}}"
-    region: "{{ region }}"
-  register: vpc_subnet_facts
+  - name: Get subnet facts
+    ec2_vpc_subnet_facts:
+      filters:
+        vpc-id: "{{ vpc_facts.vpcs[0].id}}"
+      region: "{{ region }}"
+    register: vpc_subnet_facts
 
-- name: Remove subnets
-  ec2_vpc_subnet:
-    region: "{{ region }}"
-    state: absent
-    vpc_id: "{{ vpc_facts.vpcs[0].id}}"
-    cidr: "{{ item }}"
-  with_items: "{{ vpc_subnet_facts|json_query('subnets[*].cidr_block') }}"
+  - name: Remove subnets
+    ec2_vpc_subnet:
+      region: "{{ region }}"
+      state: absent
+      vpc_id: "{{ vpc_facts.vpcs[0].id}}"
+      cidr: "{{ item }}"
+    with_items: "{{ vpc_subnet_facts|json_query('subnets[*].cidr_block') }}"
 
-- name: Remove VPC
-  ec2_vpc_net:
-    region: "{{ region }}"
-    name: "{{ project_name }}"
-    cidr_block: "{{ vpc_facts.vpcs[0].cidr_block }}"
-    state: absent
+  - name: Remove VPC
+    ec2_vpc_net:
+      region: "{{ region }}"
+      name: "{{ project_name }}"
+      cidr_block: "{{ vpc_facts.vpcs[0].cidr_block }}"
+      state: absent
