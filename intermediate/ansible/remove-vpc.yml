@@ -53,7 +53,7 @@
     ec2_vpc_igw_facts:
       region: "{{ region }}"
       filters:
-        "tag:Name": "igw_{{ project_name }}"
+        "tag:Name": "{{ project_name }}"
     register: igw_facts
 
   - name: Remove IGW
