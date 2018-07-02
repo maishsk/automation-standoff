@@ -1,0 +1,79 @@
+---
+- name: Get VPC Facts
+  ec2_vpc_net_facts:
+    filters:
+      "tag:Name": "{{ project_name }}"
+    region: "{{ region }}"
+  register: vpc_facts
+
+# - name: Get NATGW facts
+#   ec2_vpc_nat_gateway_facts:
+#     region: "{{ region }}"
+#     filters:
+#       vpc-id: "{{ vpc_facts.vpcs[0].id}}"
+#       state: available
+#   register: ngw_facts
+# - debug: var=ngw_facts.result|length
+#
+# - name: Remove NATGW
+#   ec2_vpc_nat_gateway:
+#     state: absent
+#     nat_gateway_id: "{{ item }}"
+#     release_eip: true
+#     wait: yes
+#     region: "{{ region }}"
+#   with_items: "{{ ngw_facts|json_query('result[*].nat_gateway_id')}}"
+#   when: ngw_facts.result | length > 0
+#
+# - name: Get route table facts
+#   ec2_vpc_route_table_facts:
+#     filters:
+#       vpc-id: "{{ vpc_facts.vpcs[0].id}}"
+#       association.main: "false"
+#     region: "{{ region }}"
+#   register: vpc_route_table_facts
+#
+# - name: Remove route tables
+#   ec2_vpc_route_table:
+#     vpc_id: "{{ vpc_facts.vpcs[0].id}}"
+#     region: "{{ region }}"
+#     state: absent
+#     route_table_id: "{{ item }}"
+#     lookup: id
+#   with_items: "{{ vpc_route_table_facts|json_query('route_tables[*].id') }}"
+
+- name: Gather IGW facts
+  ec2_vpc_igw_facts:
+    region: "{{ region }}"
+    filters:
+      "tag:Name": "igw_{{ project_name }}"
+  register: igw_facts
+
+- name: Remove IGW
+  ec2_vpc_igw:
+    vpc_id: "{{ igw_facts.internet_gateways[0].attachments[0].vpc_id }}"
+    region: "{{ region }}"
+    state: absent
+  when: igw_facts.internet_gateways | length > 0
+
+- name: Get subnet facts
+  ec2_vpc_subnet_facts:
+    filters:
+      vpc-id: "{{ vpc_facts.vpcs[0].id}}"
+    region: "{{ region }}"
+  register: vpc_subnet_facts
+
+- name: Remove subnets
+  ec2_vpc_subnet:
+    region: "{{ region }}"
+    state: absent
+    vpc_id: "{{ vpc_facts.vpcs[0].id}}"
+    cidr: "{{ item }}"
+  with_items: "{{ vpc_subnet_facts|json_query('subnets[*].cidr_block') }}"
+
+- name: Remove VPC
+  ec2_vpc_net:
+    region: "{{ region }}"
+    name: "{{ project_name }}"
+    cidr_block: "{{ vpc_facts.vpcs[0].cidr_block }}"
+    state: absent
