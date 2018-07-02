@@ -23,7 +23,7 @@
         state: available
     register: ngw_facts
 
-  - name: Remove NATGW
+  - name: Remove NATGW's
     ec2_vpc_nat_gateway:
       state: absent
       nat_gateway_id: "{{ item }}"
