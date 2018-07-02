@@ -31,23 +31,23 @@
       wait: yes
       region: "{{ region }}"
     with_items: "{{ ngw_facts|json_query('result[*].nat_gateway_id')}}"
-#
-# - name: Get route table facts
-#   ec2_vpc_route_table_facts:
-#     filters:
-#       vpc-id: "{{ vpc_facts.vpcs[0].id}}"
-#       association.main: "false"
-#     region: "{{ region }}"
-#   register: vpc_route_table_facts
-#
-# - name: Remove route tables
-#   ec2_vpc_route_table:
-#     vpc_id: "{{ vpc_facts.vpcs[0].id}}"
-#     region: "{{ region }}"
-#     state: absent
-#     route_table_id: "{{ item }}"
-#     lookup: id
-#   with_items: "{{ vpc_route_table_facts|json_query('route_tables[*].id') }}"
+
+- name: Get route table facts
+  ec2_vpc_route_table_facts:
+    filters:
+      vpc-id: "{{ vpc_facts.vpcs[0].id}}"
+      association.main: "false"
+    region: "{{ region }}"
+  register: vpc_route_table_facts
+
+- name: Remove route tables
+  ec2_vpc_route_table:
+    vpc_id: "{{ vpc_facts.vpcs[0].id}}"
+    region: "{{ region }}"
+    state: absent
+    route_table_id: "{{ item }}"
+    lookup: id
+  with_items: "{{ vpc_route_table_facts|json_query('route_tables[*].id') }}"
 
   - name: Gather IGW facts
     ec2_vpc_igw_facts:
